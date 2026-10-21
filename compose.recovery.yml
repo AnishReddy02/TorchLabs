@@ -1,0 +1,18 @@
+services:
+  recovery-test:
+    image: python:3.12-alpine
+    container_name: torch-recovery-demo
+    command: ["python", "-u", "/demo/service.py"]
+    volumes:
+      - ./examples/recovery/service.py:/demo/service.py:ro
+    ports: ["127.0.0.1:8099:8099"]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 64m
+    pids_limit: 32
+    logging:
+      driver: json-file
+      options:
+        max-size: 1m
+        max-file: "1"

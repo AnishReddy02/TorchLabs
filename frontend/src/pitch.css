@@ -1,0 +1,24 @@
+.pitch-session .agent-heading,
+.pitch-session .mission-panel,
+.pitch-session aside {
+  display: none;
+}
+
+.pitch-session .agent-layout {
+  grid-template-columns: 1fr;
+  margin-top: 0;
+}
+
+.pitch-report .agent-heading,
+.pitch-report .mission-panel,
+.pitch-report aside,
+.pitch-report .boundary-strip,
+.pitch-report .timeline-heading,
+.pitch-report .agent-timeline {
+  display: none;
+}
+
+.pitch-report .agent-layout {
+  grid-template-columns: 1fr;
+  margin-top: 0;
+}

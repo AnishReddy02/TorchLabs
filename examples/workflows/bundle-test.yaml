@@ -1,0 +1,10 @@
+name: bundle-test
+setup:
+  - name: inspect-upload
+    run: test -x ./run_bundle.sh
+test:
+  - name: run-uploaded-software
+    run: ./run_bundle.sh
+cleanup:
+  - name: cleanup
+    run: echo "bundle workspace cleanup complete"

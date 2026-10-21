@@ -1,0 +1,18 @@
+[package]
+name = "bench-cli"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "bench"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+chrono.workspace = true
+clap.workspace = true
+reqwest = { workspace = true, features = ["json"] }
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+

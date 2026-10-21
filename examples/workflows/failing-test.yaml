@@ -1,0 +1,12 @@
+name: failing-test
+setup:
+  - name: prepare
+    run: echo "preparing failure demonstration"
+test:
+  - name: intentional-failure
+    run: |
+      echo "this test will fail" >&2
+      exit 42
+cleanup:
+  - name: cleanup-after-failure
+    run: echo "cleanup ran after failure"

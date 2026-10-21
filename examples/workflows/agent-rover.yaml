@@ -1,0 +1,17 @@
+name: rover-localization-smoke
+description: Non-actuating localization configuration validation for the agent demo rover bundle.
+prepare:
+  - name: inspect-build
+    run: test -f config.env && test -f localization.sh
+    timeout_seconds: 10
+test:
+  - name: localization-frame
+    run: sh ./localization.sh
+    timeout_seconds: 10
+cleanup:
+  - name: cleanup
+    run: mkdir -p results; echo 'cleanup complete - no hardware processes started' | tee results/cleanup.txt
+    timeout_seconds: 10
+artifacts:
+  - logs/**
+  - results/**

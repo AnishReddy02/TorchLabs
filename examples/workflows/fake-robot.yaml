@@ -1,0 +1,31 @@
+name: fake-robot-autonomy-smoke
+description: Deploy and validate the bundled fake robotics application.
+environment:
+  variables:
+    MODE: test
+prepare:
+  - name: build
+    run: ./build.sh
+deploy:
+  - name: load-bundle
+    run: ./load_bundle.sh
+configure:
+  - name: configure
+    run: ./configure.sh
+  - name: start
+    run: ./start.sh
+test:
+  - name: health-check
+    run: ./test.sh
+    timeout_seconds: 30
+collect:
+  - name: inspect-results
+    run: cat results/result.json
+cleanup:
+  - name: cleanup
+    run: ./cleanup.sh
+    continue_on_error: true
+artifacts:
+  - logs/**
+  - results/**
+  - telemetry.json

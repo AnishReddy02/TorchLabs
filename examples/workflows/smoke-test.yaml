@@ -1,0 +1,17 @@
+name: smoke-test
+setup:
+  - name: inspect-system
+    run: uname -a
+  - name: prepare
+    run: echo "preparing asset"
+test:
+  - name: smoke
+    run: |
+      echo "running test"
+      sleep 2
+      echo "PASS"
+cleanup:
+  - name: cleanup
+    run: echo "cleaning up"
+artifacts:
+  - "./logs/**"

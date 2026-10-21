@@ -1,0 +1,9 @@
+name: cancellation-test
+test:
+  - name: wait-for-cancellation
+    run: |
+      echo "waiting for cancellation"
+      sleep 30
+cleanup:
+  - name: cleanup-after-cancellation
+    run: echo "cleanup ran after cancellation"

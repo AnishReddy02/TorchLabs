@@ -1,0 +1,8 @@
+name: timeout-test
+test:
+  - name: hung-command
+    run: sleep 30
+    timeout_seconds: 1
+cleanup:
+  - name: cleanup-after-timeout
+    run: echo "cleanup ran after timeout"
