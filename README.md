@@ -1,23 +1,29 @@
-# Bench
+# Torch Fleet
 
-Torch Agent V0 is available in the UI. See [setup, architecture, approvals and demo instructions](docs/torch-agent.md).
+Torch Fleet is Torch Labs' reliability platform for Linux based robotics fleets.
+It connects robot agents, records fleet telemetry, investigates service failures,
+proposes bounded repairs, and verifies recovery. The original Bench workflow and
+reservation capabilities remain available as the test and deployment layer.
+
+See the [customer pilot guide](docs/customer-pilot.md), [architecture audit](docs/architecture-audit.md),
+[autonomous recovery runbook](docs/autonomous-recovery.md), and [Torch Agent guide](docs/torch-agent.md).
 
 **Connect an asset once. Test it from anywhere.**
 
-Bench is developer-first infrastructure for reserving, deploying to, testing, and observing physical robotics and hardware assets. It runs existing scripts rather than requiring teams to rewrite their deployment stack.
+Torch Fleet is developer-first infrastructure for registering, reserving, deploying to, testing, and observing physical robotics and hardware assets. It runs existing scripts rather than requiring teams to rewrite their deployment stack.
 
 ```text
  React UI / bench CLI
           │ HTTP
           ▼
  ┌─────────────────────┐       PostgreSQL
- │ Bench Control Plane │◀──── durable state
+ │ Torch Control Plane │◀──── durable state
  │ REST + scheduler    │       local artifacts
  └──────────┬──────────┘
             │ persistent outbound gRPC
             ▼
  ┌─────────────────────┐
- │     Bench Node      │
+ │     Torch Node      │
  │ inventory/executor  │
  └──────────┬──────────┘
             ▼
@@ -36,6 +42,36 @@ make demo
 ```
 
 `make demo` uses isolated ports, starts PostgreSQL and temporary control-plane/node processes, runs passing, fake-robot, timeout, cancellation, and failing workflows, verifies artifacts and reservation locking, then stops the Rust processes. PostgreSQL remains running.
+
+## Autonomous recovery demo
+
+The recovery demo runs on an isolated database and ports so it can run beside the
+regular Bench demo. It includes a deliberately unhealthy noncritical HTTP service,
+bounded evidence collection, structured OpenAI diagnosis, deterministic action
+authorization, one allowlisted Docker restart, and independent health verification.
+
+Start the stack:
+
+```bash
+docker compose up -d
+docker compose -f compose.recovery.yml up -d
+```
+
+Then start the recovery control plane, node, and frontend using the commands in
+the [recovery runbook](docs/autonomous-recovery.md). Open
+<http://localhost:5174/?page=overview> for fleet health or
+<http://localhost:5174/?page=incidents> for the incident timeline.
+
+Once the stack is running, exercise the complete flow:
+
+```bash
+bash scripts/recovery-check.sh
+```
+
+The script verifies initial health, rejects a prohibited action, injects a
+failure with `POST /fail`, waits for the incident, and requires a `RESOLVED`
+incident backed by actual post-restart health observations. The fixture is a
+controlled local service; it is not a simulator for arbitrary robot hardware.
 
 ## Run the product manually
 
@@ -59,6 +95,10 @@ make frontend
 ```
 
 Open <http://localhost:5173>. The local development admin token is `dev-admin-token`; the node token is `dev-node-token`. Override both through environment variables before any non-local deployment.
+
+The fleet overview APIs are available at `/api/fleet/overview` and
+`/api/telemetry/{asset}`. They expose aggregate fleet state and bounded service
+observations for the connected agents.
 
 ## First workflow
 
@@ -154,6 +194,11 @@ curl -fsSL http://CONTROL_PLANE:8080/install.sh | sudo bash
 
 The installer detects `x86_64`/`aarch64`, downloads a prebuilt binary from the configured release path, creates a locked environment file, installs [the systemd unit](systemd/bench-node.service), enables it, and starts it. Set `BENCH_RELEASE_BASE`, `BENCH_CONTROL_PLANE`, `BENCH_HTTP_BASE`, `BENCH_NODE_TOKEN`, `BENCH_NODE_NAME`, and `BENCH_ASSET_ID` for noninteractive installation. The repository does not publish binaries itself yet.
 
+For a customer pilot, use `BENCH_ENV=production`, high-entropy admin and node
+credentials, explicit `BENCH_CORS_ORIGINS`, and a TLS reverse proxy. Production
+mode rejects the development credentials. Follow [the pilot guide](docs/customer-pilot.md)
+before connecting customer hardware.
+
 ## Development
 
 ```bash
@@ -173,7 +218,7 @@ Migrations run automatically at control-plane startup. CI runs formatting, stric
 
 ## Security boundary
 
-Implemented now: localhost binding, separate admin/node tokens, hashed token comparisons, hashed reservation tokens, command length and timeout limits, validated workflow paths, workspace-contained artifact collection, bounded uploads, process-group termination, durable audit events, and no token logging.
+Implemented now: localhost binding, separate admin/node tokens, production credential checks, configured CORS, durable fleet telemetry, structured diagnosis, deterministic recovery policy, hashed token comparisons, hashed reservation tokens, command length and timeout limits, validated workflow paths, workspace-contained artifact collection, bounded uploads, process-group termination, durable audit events, and no token logging.
 
 Still required before public production exposure: TLS and mTLS, per-user identities, RBAC/SSO, token rotation/revocation, signed workflows, a secrets manager, sandboxed execution, encrypted object storage, network policies, customer isolation, artifact authorization, and audit export. `/bin/sh -c` executes authenticated trusted workflow input on physical machines and must be treated accordingly.
 
@@ -191,3 +236,4 @@ Nodes currently detect Nix and publish `capabilities.nix`. A future `NixExecutor
 - Polling rather than WebSockets/SSE.
 - No sandbox or resource quotas beyond timeout and process termination.
 - A control-plane restart reconnects nodes, but an in-flight run is currently failed rather than resumed.
+- Organization isolation, RBAC, per-device enrollment, mTLS, signed releases, and systemd recovery adapters are not implemented yet.
