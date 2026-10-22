@@ -44,7 +44,9 @@ function Composer() {
   const s = useTorch();
   const engine = useEngine();
   const toast = useToast();
-  const suggestions = needsYou(s).filter(i => i.kind === 'failure').slice(0, 3).map(i => `Find out why ${i.title.replace(' failing on ', ' fails on ')} and verify a fix on hardware.`);
+  const suggestions = needsYou(s).filter(i => i.kind === 'failure').slice(0, 3)
+    .map(i => s.runs.find(r => r.id === i.runId)).filter(r => r !== undefined)
+    .map(r => `Find out why ${r.workflow_name} fails on ${r.asset_name} and verify a fix on hardware.`);
   const [prompt, setPrompt] = useState('');
   const [asset, setAsset] = useState('');
   const [minutes, setMinutes] = useState(20);

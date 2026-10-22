@@ -161,13 +161,12 @@ function DiagnosisCard({diagnosis, onLine, fixName, onFix, onRerun, busy}: {diag
 
 function ChangedSince({run, baseline, bundles}: {run: Run; baseline: Run; bundles: {id: string; name: string}[]}) {
   const name = (id?: string | null) => bundles.find(b => b.id === id)?.name ?? (id ? shortId(id) : 'none');
+  // Only inputs that can change the outcome: which hardware, and which software.
   const rows: {k: string; was: string; now: string}[] = [
     {k: 'Robot', was: baseline.asset_name, now: run.asset_name},
     {k: 'Bundle', was: baseline.bundle_name ?? name(baseline.bundle_id), now: run.bundle_name ?? name(run.bundle_id)},
-    ...(run.commit && baseline.commit ? [{k: 'Commit', was: baseline.commit, now: run.commit}] : []),
-    {k: 'Triggered by', was: baseline.actor ?? '—', now: run.actor ?? '—'},
   ];
-  const changed = rows.filter(r => r.was !== r.now && r.k !== 'Commit' && r.k !== 'Triggered by');
+  const changed = rows.filter(r => r.was !== r.now);
   return <section className="changed">
     <div className="changed-head">
       <Icon name="diff" size={14}/>
@@ -206,8 +205,12 @@ function LogViewer({logs, run, stepId, focusLine, onClearStep}: {logs: Log[]; ru
   ), [logs, stepId, errorsOnly, filter]);
   const active = isActive(run.status);
 
+  // Scroll the log pane itself (not the page) so the cited line lands in the middle of the viewer.
   useEffect(() => {
-    if (focusLine) box.current?.querySelector(`[data-line="${focusLine}"]`)?.scrollIntoView({block: 'center', behavior: 'smooth'});
+    const el = focusLine ? box.current?.querySelector<HTMLElement>(`[data-line="${focusLine}"]`) : null;
+    if (!el || !box.current) return;
+    box.current.closest('.run-split')?.scrollIntoView({block: 'nearest', behavior: 'smooth'});
+    box.current.scrollTo({top: el.offsetTop - box.current.clientHeight / 2, behavior: 'smooth'});
   }, [focusLine]);
   useEffect(() => {
     if (active && follow && !focusLine && box.current) box.current.scrollTop = box.current.scrollHeight;

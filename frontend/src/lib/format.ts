@@ -52,7 +52,7 @@ export function stepDuration(step: Step, now = Date.now()) {
 }
 
 export const shortId = (id: string) => id.slice(0, 8);
-export const clock = (value: string) => new Date(value).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+export const clock = (value: string) => new Date(value).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false});
 
 export function bytes(n: number) {
   if (n < 1024) return `${n} B`;

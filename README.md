@@ -96,6 +96,8 @@ make frontend
 
 Open <http://localhost:5173>. The local development admin token is `dev-admin-token`; the node token is `dev-node-token`. Override both through environment variables before any non-local deployment.
 
+The console is keyboard-first (`⌘K` for everything, `N` for a new run, `?` for shortcuts). If the control plane is not reachable it runs a labeled demo fleet so the UI can be explored on its own; add `?demo` to force it. See the [UI design notes](docs/design/torch-ui.md) for the research and principles behind it.
+
 The fleet overview APIs are available at `/api/fleet/overview` and
 `/api/telemetry/{asset}`. They expose aggregate fleet state and bounded service
 observations for the connected agents.

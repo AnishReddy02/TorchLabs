@@ -103,7 +103,7 @@ function IncidentView({incident}: {incident: Incident}) {
         {events.map(e => {
           const data = (e.data ?? {}) as Record<string, unknown>;
           return <li key={e.id}>
-            <StatusIcon tone={/VERIFIED|RESOLVED|AUTHORI/.test(e.kind) ? 'ok' : /FAIL|ESCALAT|DENIED/.test(e.kind) ? 'fail' : /DETECT/.test(e.kind) ? 'wait' : tone(e.kind) === 'idle' ? 'idle' : 'live'} size={13}/>
+            <StatusIcon tone={/FAIL|ESCALAT|DENIED/.test(e.kind) ? 'fail' : /DETECT/.test(e.kind) ? 'wait' : tone(e.kind) === 'live' ? 'live' : 'ok'} size={13}/>
             <div><div className="t-head"><b>{label(e.kind)}</b><span className="muted">{e.actor}</span><time>{clock(e.created_at)} · +{duration(Date.parse(e.created_at) - t0)}</time></div>
               {data.message ? <p>{String(data.message)}</p> : null}
               {Object.keys(data).some(k => k !== 'message') && <details><summary>Evidence</summary><pre>{JSON.stringify(data, null, 2)}</pre></details>}

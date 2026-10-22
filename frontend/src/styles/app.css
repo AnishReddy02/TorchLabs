@@ -317,7 +317,7 @@ select:focus, input:focus, textarea:focus { border-color: var(--accent-line); bo
 .logs-bar { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid var(--line-soft); background: var(--bg-1); flex-wrap: wrap; }
 .logs-title { display: inline-flex; align-items: center; gap: 8px; margin-right: auto; }
 .logs-hint { font-size: 11.5px; display: inline-flex; align-items: center; gap: 4px; }
-.logs-body { overflow: auto; padding: 8px 0; font: 12px/1.65 var(--mono); }
+.logs-body { position: relative; overflow: auto; padding: 8px 0; font: 12px/1.65 var(--mono); }
 .line { display: grid; grid-template-columns: 48px 72px minmax(0, 1fr); padding: 0 12px 0 0; }
 .line:hover { background: var(--bg-2); }
 .ln { color: var(--fg-3); text-align: right; padding-right: 14px; user-select: none; opacity: .7; }
@@ -348,6 +348,9 @@ select:focus, input:focus, textarea:focus { border-color: var(--accent-line); bo
 .tr.th { border-top: 0; cursor: default; padding-top: 8px; padding-bottom: 8px; color: var(--fg-3); font-size: 11.5px; font-weight: 500; background: var(--bg-2); }
 .tr:not(.th):hover, .tr.is-active { background: var(--bg-2); }
 .tr.selected { background: var(--bg-3); box-shadow: inset 2px 0 0 var(--accent); }
+.with-drawer .tr { grid-template-columns: minmax(130px, 1fr) 110px minmax(120px, 1fr) 150px 70px; }
+.with-drawer .tr > :nth-child(6), .with-drawer .tr > :nth-child(7) { display: none; }
+.panel .facts { grid-template-columns: 150px minmax(0, 1fr); }
 .cell-robot { display: grid; min-width: 0; }
 .cell-robot b { font-weight: 550; }
 .cell-robot small { color: var(--fg-3); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -579,11 +582,12 @@ select:focus, input:focus, textarea:focus { border-color: var(--accent-line); bo
   .inbox-row { grid-template-columns: 16px minmax(0, 1fr); }
   .inbox-actions { grid-column: 2; }
   .inbox-time { display: none; }
+  .hint-keys, .logs-hint { display: none !important; }
   .guardrails { grid-template-columns: minmax(0, 1fr); }
   .guardrails > div { border-left: 0; border-top: 1px solid var(--line-soft); }
   .guardrails > div:first-child { border-top: 0; }
   .diag-next, .diagnosis.pending { flex-direction: column; align-items: stretch; }
-  .tr { grid-template-columns: minmax(0, 1fr) auto; }
+  .tr, .with-drawer .tr { grid-template-columns: minmax(0, 1fr) auto; }
   .tr > :nth-child(n+3) { display: none; }
   .bundles-row { grid-template-columns: minmax(0, 1fr) auto; }
   .bundles-row > :nth-child(n+2):not(:last-child) { display: none; }

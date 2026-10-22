@@ -262,7 +262,7 @@ function NewRunDialog({prefill, onClose}: {prefill: RunPrefill; onClose: () => v
             {s.workflows.map(w => <option key={w.id} value={w.id}>{w.name} · v{w.version}</option>)}
           </select>
         </label>
-        <label className="field">Software bundle <span className="optional">optional</span>
+        <label className="field"><span>Software bundle <span className="optional">· optional</span></span>
           <select value={bundleId} onChange={e => setBundleId(e.target.value)}>
             <option value="">Use what is already on the robot</option>
             {bundles.map(b => <option key={b.id} value={b.id}>{b.name} · {b.sha256.slice(0, 8)}</option>)}
