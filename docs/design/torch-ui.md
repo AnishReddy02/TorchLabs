@@ -31,7 +31,7 @@ Mobbin's API wasn't available on our plan, so this research used the live produc
 5. **The system is visibly alive.** Live runs stream logs, phase bars pulse, the activity feed updates, and incidents walk through their stages in place. Motion only ever reflects real state, and it respects `prefers-reduced-motion`.
 6. **Keyboard first, web native.** ⌘K or `/` for everything, `N` new run, `G` then `H/R/F/A/I/W` to navigate, `J/K` and `↵` in lists, `R` rerun, `E` next error line, `?` help. Navigation uses real `<a>` links, so cmd-click and copy-link work.
 7. **Humans approve consequential actions.** The agent's boundaries are visible before you start ("Runs on its own / Asks you first / Never"). Deploys stop at an approval card that shows the bundle SHA-256 and the reason.
-8. **Never an empty screen.** If the control plane isn't reachable, the console runs a bundled demo fleet, labeled clearly in the sidebar. Every empty state explains the next step.
+8. **Never fake data silently.** If the control plane doesn't answer, the console says so, shows how to start it, and keeps retrying until it connects. Simulated data appears only when someone asks for it ("Explore with demo data" or `?demo`), and the sidebar labels it as simulated for as long as it's on. Every empty state explains the next step.
 
 ## Screens
 
@@ -50,7 +50,7 @@ Mobbin's API wasn't available on our plan, so this research used the live produc
 cd frontend && npm install && npm run dev
 ```
 
-With the control plane up (`make dev-control-plane`), the console is live against `VITE_API_URL` (default `http://localhost:8080`). Without it, the console starts the demo fleet automatically. Add `?demo` to any URL to force demo mode, and use **Retry** in the sidebar to reconnect.
+With the control plane up (`make dev-control-plane`), the console is live against `VITE_API_URL` (default `http://localhost:8080`). Without it, the console shows a "Can't reach the control plane" screen that retries every 5 s. Choose **Explore with demo data** there, or add `?demo` to the URL, to run the simulated fleet. Demo mode lasts for the browser tab only; **Exit** in the sidebar leaves it.
 
 ## Code map
 

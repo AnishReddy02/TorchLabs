@@ -3,7 +3,7 @@ import {emptySnapshot, type Engine, type MissionInput, type Snapshot} from './en
 import {PHASES, tone} from './format';
 
 /**
- * A self-running fleet used when no control plane is reachable. It tells one coherent story:
+ * A simulated fleet, shown only when someone opts in (?demo or "Explore with demo data"). It tells one coherent story:
  * rover-demo 2.4.1 broke localization, 2.4.2 fixes it, an agent is waiting to deploy the fix,
  * and a telemetry service on Rover-05 fails and recovers on its own a few seconds after load.
  */

@@ -507,6 +507,16 @@ select:focus, input:focus, textarea:focus { border-color: var(--accent-line); bo
 .dropzone.drag { border-color: var(--accent); background: var(--accent-soft); }
 .bundles-row { grid-template-columns: minmax(180px, 1.4fr) 140px 90px 90px 100px 120px; cursor: default; }
 
+/* ---------- control plane unreachable ---------- */
+.unreachable { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.unreachable-card { width: min(520px, 100%); display: grid; gap: 14px; justify-items: start; padding: 28px; border: 1px solid var(--line-soft); border-radius: var(--r-lg); background: var(--bg-1); box-shadow: var(--shadow); }
+.unreachable-card h1 { font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
+.unreachable-card p { color: var(--fg-2); }
+.unreachable-card code { font-size: 12px; padding: 1px 5px; border-radius: 4px; background: var(--bg-2); }
+.unreachable-card pre { width: 100%; margin: 0; padding: 10px 14px; border-radius: var(--r); background: var(--bg-inset); border: 1px solid var(--line-soft); font-size: 12.5px; color: var(--fg-2); }
+.unreachable-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.unreachable-note { font-size: 12px; }
+
 /* ---------- overlays ---------- */
 .overlay { position: fixed; inset: 0; z-index: 50; display: grid; place-items: start center; padding-top: 12vh; background: rgb(0 0 0 / .45); backdrop-filter: blur(2px); animation: fade .15s ease; }
 @keyframes fade { from { opacity: 0; } }

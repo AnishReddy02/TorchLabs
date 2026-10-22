@@ -2,39 +2,51 @@ import {createContext, useContext, useEffect, useMemo, useState, useSyncExternal
 import {emptySnapshot, LiveEngine, probe, type Engine, type Snapshot} from './engine';
 import {DemoEngine} from './demo';
 
-type Ctx = {engine: Engine; connect: () => void; switchToDemo: () => void};
+type Ctx = {engine: Engine; unreachable: boolean; connect: () => void; switchToDemo: () => void};
 const EngineContext = createContext<Ctx | null>(null);
 
 const connecting: Engine = new Proxy({} as Engine, {
   get: (_, key) => key === 'get' ? () => idle : key === 'subscribe' ? () => () => {} : key.toString().startsWith('watch') ? () => () => {} : () => Promise.reject(new Error('Still connecting'))
 });
 const idle = emptySnapshot('connecting');
+const DEMO_KEY = 'torch_demo';
+const RETRY_MS = 5000;
 
-function forcedDemo() {
-  try { return new URLSearchParams(location.search).has('demo') || localStorage.getItem('torch_mode') === 'demo'; }
+/** Demo data is only ever shown on request: ?demo in the URL, or the button on the unreachable screen (this tab only). */
+function demoRequested() {
+  try { return new URLSearchParams(location.search).has('demo') || sessionStorage.getItem(DEMO_KEY) === '1'; }
   catch { return false; }
 }
+function setDemo(on: boolean) {
+  try { if (on) sessionStorage.setItem(DEMO_KEY, '1'); else sessionStorage.removeItem(DEMO_KEY); } catch { /* storage unavailable */ }
+}
 
-/** Uses the control plane when it answers; otherwise runs the bundled demo fleet so the UI is never empty. */
+/** Connects to the control plane; if it is down, reports that and keeps retrying instead of substituting fake data. */
 export function TorchProvider({children}: {children: ReactNode}) {
   const [engine, setEngine] = useState<Engine>(connecting);
+  const [unreachable, setUnreachable] = useState(false);
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     let cancelled = false;
     let created: (LiveEngine | DemoEngine) | undefined;
-    void (async () => {
-      const live = !forcedDemo() && await probe();
+    let retry: number | undefined;
+    const start = (next: LiveEngine | DemoEngine) => { created = next; setUnreachable(false); setEngine(next); };
+    const tryLive = async () => {
+      const ok = await probe();
       if (cancelled) return;
-      created = live ? new LiveEngine() : new DemoEngine();
-      setEngine(created);
-    })();
-    return () => { cancelled = true; created?.dispose(); };
+      if (ok) start(new LiveEngine());
+      else { setUnreachable(true); retry = window.setTimeout(() => void tryLive(), RETRY_MS); }
+    };
+    setEngine(connecting);
+    if (demoRequested()) start(new DemoEngine());
+    else void tryLive();
+    return () => { cancelled = true; clearTimeout(retry); created?.dispose(); };
   }, [attempt]);
   const value = useMemo<Ctx>(() => ({
-    engine,
-    connect: () => { try { localStorage.removeItem('torch_mode'); } catch { /* storage unavailable */ } setAttempt(n => n + 1); },
-    switchToDemo: () => { try { localStorage.setItem('torch_mode', 'demo'); } catch { /* storage unavailable */ } setAttempt(n => n + 1); },
-  }), [engine]);
+    engine, unreachable,
+    connect: () => { setDemo(false); setAttempt(n => n + 1); },
+    switchToDemo: () => { setDemo(true); setAttempt(n => n + 1); },
+  }), [engine, unreachable]);
   return <EngineContext.Provider value={value}>{children}</EngineContext.Provider>;
 }
 

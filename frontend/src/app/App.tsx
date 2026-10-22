@@ -1,5 +1,6 @@
 import {useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode} from 'react';
 import {useEngine, useEngineCtx, useTorch} from '../lib/store';
+import {API} from '../lib/engine';
 import {Link, navigate, useLocation} from '../lib/router';
 import {needsYou} from '../lib/derive';
 import {label, shortId} from '../lib/format';
@@ -22,6 +23,8 @@ export function App() {
   const [runDialog, setRunDialog] = useState<RunPrefill | null>(null);
   const actions = useMemo(() => ({openPalette: () => setPalette(true), newRun: (p: RunPrefill = {}) => setRunDialog(p), openHelp: () => setHelp(true)}), []);
   useShortcuts(actions);
+  const {unreachable} = useEngineCtx();
+  if (unreachable) return <Unreachable/>;
 
   const [, section, id] = path.split('/');
   let page: ReactNode;
@@ -43,6 +46,25 @@ export function App() {
     {runDialog && <NewRunDialog prefill={runDialog} onClose={() => setRunDialog(null)}/>}
     {help && <ShortcutHelp onClose={() => setHelp(false)}/>}
   </ActionsContext.Provider>;
+}
+
+/** Shown instead of the console when the control plane does not answer. Demo data is offered, never substituted. */
+function Unreachable() {
+  const {connect, switchToDemo} = useEngineCtx();
+  return <main className="unreachable">
+    <div className="unreachable-card" role="status" aria-live="polite">
+      <TorchMark size={36}/>
+      <h1>Can’t reach the Torch control plane</h1>
+      <p>No answer from <code>{API}/api/health</code>. Torch retries every few seconds and connects as soon as it responds.</p>
+      <pre>make infra{'\n'}make dev-control-plane</pre>
+      <p className="muted">Running it on another address? Set <code>VITE_API_URL</code> (the recovery stack uses <code>http://localhost:8081</code>) and restart the frontend.</p>
+      <div className="unreachable-actions">
+        <button className="btn btn-primary" onClick={connect}>Retry now</button>
+        <button className="btn" onClick={switchToDemo}>Explore with demo data</button>
+      </div>
+      <p className="muted unreachable-note">Demo data is a simulated fleet, labeled as such, and never touches your robots.</p>
+    </div>
+  </main>;
 }
 
 const NAV: {group: string; items: {key: string; href: string; label: string; icon: IconName; hint: string}[]}[] = [
@@ -97,9 +119,9 @@ function Sidebar({section}: {section: string}) {
         <span className="conn-dot"/>
         <div>
           <b>{s.mode === 'live' ? 'Live' : s.mode === 'demo' ? 'Demo fleet' : 'Connecting…'}</b>
-          <small>{s.mode === 'live' ? s.endpoint.replace(/^https?:\/\//, '') : s.mode === 'demo' ? 'Control plane not reachable' : s.endpoint.replace(/^https?:\/\//, '')}</small>
+          <small>{s.mode === 'demo' ? 'Simulated data, not your robots' : s.endpoint.replace(/^https?:\/\//, '')}</small>
         </div>
-        {s.mode === 'demo' && <button className="btn btn-ghost btn-sm" onClick={connect}>Retry</button>}
+        {s.mode === 'demo' && <button className="btn btn-ghost btn-sm" onClick={connect} title="Leave demo and connect to the control plane">Exit</button>}
         {s.mode === 'live' && <button className="btn btn-ghost btn-sm" onClick={switchToDemo} title="Explore with simulated data">Demo</button>}
       </div>
       <div className="foot-row">
