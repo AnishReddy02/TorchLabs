@@ -57,7 +57,12 @@ impl Executor for ShellExecutor {
         let started = Instant::now();
         // V1 workflows are trusted authenticated input. /bin/sh remains an explicit
         // replaceable boundary; production deployments still require sandboxing.
-        let mut command = Command::new("/bin/sh");
+        // Windows development hosts use the POSIX sh on PATH (e.g. Git for Windows).
+        #[cfg(unix)]
+        let shell = "/bin/sh";
+        #[cfg(not(unix))]
+        let shell = "sh";
+        let mut command = Command::new(shell);
         command
             .arg("-c")
             .arg(&step.run)
@@ -108,8 +113,18 @@ async fn terminate_tree(child: &mut tokio::process::Child) -> anyhow::Result<()>
             return Err(std::io::Error::last_os_error().into());
         }
     }
+    #[cfg(windows)]
+    if let Some(pid) = child.id() {
+        // Killing only sh would leave its descendants holding the output pipes open.
+        let _ = Command::new("taskkill")
+            .args(["/T", "/F", "/PID", &pid.to_string()])
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status()
+            .await;
+    }
     #[cfg(not(unix))]
-    child.kill().await?;
+    let _ = child.kill().await;
     let _ = child.wait().await;
     Ok(())
 }

@@ -64,10 +64,10 @@ FAIL_ID=$(upload examples/workflows/failing-test.yaml)
 BUNDLE_WORKFLOW_ID=$(upload examples/workflows/fake-robot.yaml)
 TIMEOUT_ID=$(upload examples/workflows/timeout-test.yaml)
 CANCEL_ID=$(upload examples/workflows/cancellation-test.yaml)
-BUNDLE_TEMP_DIR=$(mktemp -d -t bench-demo-bundle)
+BUNDLE_TEMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/bench-demo-bundle.XXXXXX")
 BUNDLE_ARCHIVE="$BUNDLE_TEMP_DIR/demo-software.tar.gz"
 tar -C examples/fake-robot -czf "$BUNDLE_ARCHIVE" .
-BUNDLE_ID=$(curl -fsS -X POST "$API/bundles" -H "authorization: Bearer $API_TOKEN" -F 'name=demo-software-1.0.0' -F "file=@$BUNDLE_ARCHIVE;type=application/gzip" | jq -r .id)
+BUNDLE_ID=$(cd "$BUNDLE_TEMP_DIR" && curl -fsS -X POST "$API/bundles" -H "authorization: Bearer $API_TOKEN" -F 'name=demo-software-1.0.0' -F "file=@demo-software.tar.gz;type=application/gzip" | jq -r .id)
 echo "uploaded software bundle as $BUNDLE_ID"
 RESERVATION_ID=$(reserve)
 echo "reserved $ASSET_NAME as $RESERVATION_ID"
@@ -100,7 +100,7 @@ curl -fsS "$API/assets/$ASSET_ID/release" -X POST -H "authorization: Bearer $API
 # not a fabricated model response. The live model demo is started from the UI.
 AGENT_WORKFLOW_ID=$(upload examples/workflows/agent-rover.yaml)
 tar -C examples/agent-rover -czf "$BUNDLE_TEMP_DIR/agent-rover.tar.gz" .
-AGENT_BUNDLE_ID=$(curl -fsS -X POST "$API/bundles" -H "authorization: Bearer $API_TOKEN" -F 'name=rover-demo-frame-check' -F "file=@$BUNDLE_TEMP_DIR/agent-rover.tar.gz;type=application/gzip" | jq -er .id)
+AGENT_BUNDLE_ID=$(cd "$BUNDLE_TEMP_DIR" && curl -fsS -X POST "$API/bundles" -H "authorization: Bearer $API_TOKEN" -F 'name=rover-demo-frame-check' -F "file=@agent-rover.tar.gz;type=application/gzip" | jq -er .id)
 curl -fsS -X POST "$API/api/agent/workflows/$AGENT_WORKFLOW_ID/approve" -H "authorization: Bearer $API_TOKEN" -H 'content-type: application/json' -d '{}' >/dev/null
 RESERVATION_ID=$(reserve)
 run_and_wait "$AGENT_WORKFLOW_ID" FAILED "$AGENT_BUNDLE_ID"

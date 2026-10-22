@@ -2,8 +2,8 @@
 set -euo pipefail
 
 ROOT_DIR=$(cd "$(dirname "$0")/.." && pwd)
-CONTROL_LOG=$(mktemp -t bench-control-plane.log)
-NODE_LOG=$(mktemp -t bench-node.log)
+CONTROL_LOG=$(mktemp "${TMPDIR:-/tmp}/bench-control-plane.XXXXXX")
+NODE_LOG=$(mktemp "${TMPDIR:-/tmp}/bench-node.XXXXXX")
 CONTROL_PID=""
 NODE_PID=""
 DEMO_HTTP_PORT="${BENCH_DEMO_HTTP_PORT:-18080}"

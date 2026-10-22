@@ -568,10 +568,13 @@ async fn collect_artifacts(
                 warn!(path=%path.display(), "skipping artifact larger than 10 MiB");
                 continue;
             }
+            // Artifact paths are reported with '/' separators on every platform.
             let relative = canonical
                 .strip_prefix(&canonical_workspace)?
-                .to_string_lossy()
-                .into_owned();
+                .components()
+                .map(|part| part.as_os_str().to_string_lossy())
+                .collect::<Vec<_>>()
+                .join("/");
             let artifact = ArtifactUploaded {
                 artifact_id: Uuid::new_v4().to_string(),
                 name: path
@@ -647,8 +650,8 @@ fn inventory() -> Inventory {
 }
 fn detected_capabilities() -> serde_json::Value {
     let command_exists = |name: &str| {
-        std::process::Command::new("/usr/bin/env")
-            .args(["sh", "-c", &format!("command -v {name} >/dev/null 2>&1")])
+        std::process::Command::new("sh")
+            .args(["-c", &format!("command -v {name} >/dev/null 2>&1")])
             .status()
             .is_ok_and(|status| status.success())
     };
