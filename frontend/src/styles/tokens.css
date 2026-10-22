@@ -1,0 +1,85 @@
+/*
+ * Torch design tokens. Neutral chrome, one ember accent, and a reserved status scale.
+ * Color is spent on state (and the primary action), never on decoration.
+ */
+:root, :root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #09090b;
+  --bg-1: #0e0e11;
+  --bg-2: #141418;
+  --bg-3: #1b1b21;
+  --bg-inset: #060608;
+  --line: #24242b;
+  --line-soft: #1a1a20;
+  --fg: #ededf0;
+  --fg-2: #a3a3ad;
+  --fg-3: #6f6f7a;
+
+  --accent: #ff6a2b;
+  --accent-hover: #ff7d45;
+  --accent-fg: #1a0700;
+  --accent-soft: rgb(255 106 43 / 0.12);
+  --accent-line: rgb(255 106 43 / 0.35);
+
+  --ok: #3ecf8e;
+  --fail: #f2555a;
+  --live: #ff7a33;
+  --wait: #e3b341;
+  --idle: #6f6f7a;
+  --ok-soft: rgb(62 207 142 / 0.12);
+  --fail-soft: rgb(242 85 90 / 0.12);
+  --live-soft: rgb(255 122 51 / 0.12);
+  --wait-soft: rgb(227 179 65 / 0.12);
+  --idle-soft: rgb(111 111 122 / 0.14);
+
+  --mark-bg: #1c1c22;
+  --mark-fg: #ededf0;
+  --shadow: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 12px 32px -12px rgb(0 0 0 / 0.6);
+  --shadow-pop: 0 24px 64px -16px rgb(0 0 0 / 0.75), 0 0 0 1px var(--line);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #fafaf9;
+  --bg-1: #ffffff;
+  --bg-2: #f4f4f2;
+  --bg-3: #ebebe8;
+  --bg-inset: #f6f6f4;
+  --line: #e4e4e0;
+  --line-soft: #eeeeeb;
+  --fg: #16161a;
+  --fg-2: #5a5a64;
+  --fg-3: #8a8a93;
+
+  --accent: #e5531a;
+  --accent-hover: #d14812;
+  --accent-fg: #ffffff;
+  --accent-soft: rgb(229 83 26 / 0.09);
+  --accent-line: rgb(229 83 26 / 0.35);
+
+  --ok: #12a066;
+  --fail: #d93b41;
+  --live: #e5601c;
+  --wait: #b5850f;
+  --idle: #8a8a93;
+  --ok-soft: rgb(18 160 102 / 0.1);
+  --fail-soft: rgb(217 59 65 / 0.09);
+  --live-soft: rgb(229 96 28 / 0.1);
+  --wait-soft: rgb(181 133 15 / 0.12);
+  --idle-soft: rgb(138 138 147 / 0.14);
+
+  --mark-bg: #16161a;
+  --mark-fg: #ffffff;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px -12px rgb(0 0 0 / 0.12);
+  --shadow-pop: 0 24px 64px -16px rgb(0 0 0 / 0.25), 0 0 0 1px var(--line);
+}
+
+:root {
+  --font: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --r-sm: 6px;
+  --r: 8px;
+  --r-lg: 12px;
+  --sidebar: 236px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
