@@ -5,7 +5,10 @@ mod recovery;
 mod recovery_model;
 
 use anyhow::Context;
-use axum::{http::HeaderValue, Router};
+use axum::{
+    http::{header, HeaderValue, Method},
+    Router,
+};
 use bench_protocol::bench::node_service_server::NodeServiceServer;
 use bench_protocol::bench::{control_message, ControlMessage, Envelope, ReservationChanged};
 use clap::Parser;
@@ -127,11 +130,16 @@ async fn main() -> anyhow::Result<()> {
         recovery_policy: recovery_policy.clone(),
     };
 
-    let cors = config
+    // allow_origin replaces rather than appends, so pass every origin at once.
+    let origins: Vec<HeaderValue> = config
         .cors_origins
         .split(',')
         .filter_map(|origin| origin.trim().parse::<HeaderValue>().ok())
-        .fold(CorsLayer::new(), |layer, origin| layer.allow_origin(origin));
+        .collect();
+    let cors = CorsLayer::new()
+        .allow_origin(origins)
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+        .allow_headers([header::AUTHORIZATION, header::CONTENT_TYPE]);
     let app = Router::new()
         .merge(api::router())
         .merge(agent::router())
